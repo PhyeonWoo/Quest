@@ -1,47 +1,57 @@
 package back.Quest.service.diary.impl;
 
+import back.Quest.config.exception.CustomException;
 import back.Quest.mapper.diary.DiaryMapper;
 import back.Quest.model.dto.diary.DiaryDto;
 import back.Quest.service.diary.DiaryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 
 
-
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@Transactional(readOnly = true)
 public class DiaryServiceImpl implements DiaryService {
     private final DiaryMapper diaryMapper;
 
 
     @Override
+    @Transactional
     public void insertDiary(Long memberNo, DiaryDto.DiaryRequest request) {
         log.info("Insert Diary Request");
         int diaryCount = diaryMapper.insertDiary(memberNo, request);
 
         if (diaryCount == 0) {
-            throw new IllegalArgumentException("오류");
+            log.error("Insert Diary Request Error");
+            throw new CustomException.InvalidRequestException("Insert Request Error");
         }
+
         log.info("Insert Diary Success");
     }
 
     @Override
+    @Transactional
     public void updateDiary(Long memberNo, Long diaryNo, DiaryDto.DiaryUpdateRequest request) {
+        log.info("Update Diary Request");
         int updateDiary = diaryMapper.updateDiary(memberNo, diaryNo, request);
 
         if(updateDiary == 0) {
-            throw new IllegalArgumentException("오류");
+            log.error("Update Diary Request Error");
+            throw new CustomException.InvalidRequestException("Update Request Error");
         }
+
         log.info("Update Diary Success");
     }
 
     @Override
+    @Transactional
     public void deleteDiary(Long memberNo, Long diaryNo) {
         log.info("Delete Diary Request");
 
@@ -49,28 +59,33 @@ public class DiaryServiceImpl implements DiaryService {
 
         int deleteDiary = diaryMapper.deleteDiary(memberNo, diaryNo);
         if(deleteDiary == 0) {
-            throw new IllegalArgumentException("오류");
+            log.error("Not delete Request");
+            throw new CustomException.InvalidRequestException("Delete Request Error");
         }
         log.info("Delete Diary Success");
     }
 
     @Override
     public DiaryDto.DiaryResponse dateDiary(Long memberNo, LocalDate date) {
+        log.info("DateDiary Request");
         DiaryDto.DiaryResponse response = diaryMapper.dateDiary(memberNo, date);
 
         if (response == null) {
-            throw new IllegalArgumentException("공백");
+            log.warn("Not Response");
+            throw new CustomException.NotFoundException("해당 날짜에 다이어리가 존재하지 않습니다.");
         }
 
+        log.info("DateDiary Response Success");
         return response;
     }
 
     @Override
     public List<DiaryDto.DiaryResponse> myDiary(Long memberNo) {
+        log.info("MyDiary find Request");
         List<DiaryDto.DiaryResponse> response = diaryMapper.myDiary(memberNo);
 
         if (response.isEmpty()) {
-            log.warn("Not Fount");
+            log.warn("Not Found");
             return Collections.emptyList();
         }
 
@@ -80,38 +95,9 @@ public class DiaryServiceImpl implements DiaryService {
 
 
 
-
-
-
-//    private void validInsert(Long memberToken, DiaryDto.DiaryRequest request) {
-//        validPermission(memberToken, request.memberNo());
-//    }
-
-    private void validPermission(Long memberToken, Long requestMemberNo) {
-        if(!memberToken.equals(requestMemberNo)) {
-            throw new IllegalArgumentException("오류");
-        }
-    }
-
-    private void validUpdate(Long memberToken, Long diaryNo, DiaryDto.DiaryUpdateRequest request) {
-        validPermission(memberToken, request.memberNo());
-        validDiary(diaryNo, request.diaryNo());
-    }
-
-
-    private void validDiary(Long diaryNo, Long requestDiaryNo) {
-        if (diaryNo == null || requestDiaryNo == null) {
-            throw new IllegalArgumentException("공백이면 안됩니다.");
-        }
-        if(!diaryNo.equals(requestDiaryNo)) {
-            throw new IllegalArgumentException("일치하지 않습니다.");
-        }
-    }
-
-
     private void validDelete(Long memberToken, Long diaryNo) {
         if (diaryNo == null) {
-            throw new IllegalArgumentException("빈칸이면 안됩니다.");
+            throw new CustomException.InvalidRequestException("빈칸입니다.");
         }
         validDiaryOwner(memberToken, diaryNo);
     }
@@ -121,10 +107,10 @@ public class DiaryServiceImpl implements DiaryService {
         DiaryDto.DiaryResponse response = diaryMapper.findByIdDiary(diary_no);
 
         if (response == null) {
-            throw new IllegalArgumentException("다이어리를 찾을 수 없습니다.");
+            throw new CustomException.NotFoundException("존재하지 않습니다.");
         }
         if (!response.memberNo().equals(memberToken)) {
-            throw new IllegalArgumentException("일치하지 않습니다.");
+            throw new CustomException.InvalidRequestException("일치하지 않습니다.");
         }
     }
 }
