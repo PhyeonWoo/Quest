@@ -1,10 +1,10 @@
 package back.Quest.controller.auth;
 
 
+import back.Quest.config.common.ApiResponse;
 import back.Quest.model.dto.auth.AuthDto;
 import back.Quest.security.JwtProvider;
 import back.Quest.service.auth.AuthService;
-import com.example.hanBack.config.common.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
