@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="back.Quest.mapper.auth.AuthMapper">
+    <insert id="insertLogin" parameterType="back.Quest.model.dto.auth.AuthDto$LoginCreateRequest">
+        INSERT INTO RECALL_LOGIN (member_no, id, pw, role)
+        VALUES (#{memberNo}, #{id}, #{pw}, 'ROLE_USER')
+    </insert>
+
+    <insert id="insertMember" parameterType="back.Quest.model.dto.auth.AuthDto$MemberCreateRequest">
+        INSERT INTO RECALL_MEMBER (email, name, phone_number)
+        VALUES (#{email}, #{name}, #{phoneNumber})
+    </insert>
+
+    <select id="lastInsertId" resultType="Long">
+        SELECT LAST_INSERT_ID()
+    </select>
+
+    <select id="existsById" resultType="boolean">
+        SELECT COUNT(*) > 0
+        FROM RECALL_LOGIN
+        WHERE id = #{id}
+    </select>
+
+    <select id="existsByEmail" resultType="boolean">
+        SELECT COUNT(*) > 0
+        FROM RECALL_MEMBER
+        WHERE email = #{email}
+    </select>
+
+    <select id="findId" resultType="back.Quest.model.dto.auth.AuthDto$LoginInfo">
+        SELECT  id as id
+             ,  pw as pw
+             ,  member_no as memberNo
+          FROM  RECALL_LOGIN
+          WHERE id = #{id}
+    </select>
+</mapper>

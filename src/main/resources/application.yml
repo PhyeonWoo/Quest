@@ -1,5 +1,5 @@
 server:
-  port: 8081
+  port: 8080
   servlet:
     encoding:
       charset: UTF-8
@@ -7,15 +7,17 @@ server:
 
 spring:
   datasource:
+    # 드라이버 클래스명을 명시적으로 지정
+    driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/recall?useSSL=false&serverTimezone=Asia/Seoul&characterEncoding=UTF-8&allowPublicKeyRetrieval=true
     username: root
     password: qkrgusdn
-    driver-class-name: com.mysql.cj.jdbc.Driver
 
-    data:
-      redis:
-        host: localhost
-        port: 6379
+  # redis 설정을 datasource 밖(spring 바로 하위)으로 뺍니다.
+  data:
+    redis:
+      host: localhost
+      port: 6379
 
   thymeleaf:
     cache: false
@@ -28,12 +30,17 @@ spring:
     restart:
       enabled: true
 
+# MyBatis 설정 (spring 하위가 아니라 최상단 레벨에 위치)
+mybatis:
+  mapper-locations: classpath:mapper/**/*.xml
+  type-aliases-package: back.Quest.model.dto
+  configuration:
+    map-underscore-to-camel-case: true
+  # 만약 mybatis-config.xml 파일이 없다면 아래 줄은 반드시 삭제하세요.
+  # config-location: classpath:mybatis-config.xml
+
 springdoc:
   swagger-ui:
     path: /swagger-ui.html
   api-docs:
     path: /api-docs
-
-mybatis:
-  mapper-locations: classpath:mapper/**/*.xml
-  config-location: classpath:mybatis-config.xml
