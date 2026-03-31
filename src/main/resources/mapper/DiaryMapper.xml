@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="back.Quest.mapper.diary.DiaryMapper">
+
+    <select id="dateDiary" resultType="back.Quest.model.dto.diary.DiaryDto$DiaryResponse">
+        SELECT diary_no as diaryNo
+             , member_no as memberNo
+             , title
+             , memo
+             , DATE(created_dt) as createdDt
+             , DATE(updated_dt) as updatedDt
+          FROM RECALL_DIARY
+          WHERE member_no = #{memberNo}
+          AND DATE(created_dt) = #{date}
+          AND deleted_dt IS NULL
+    </select>
+
+
+    <select id="myDiary" resultType="back.Quest.model.dto.diary.DiaryDto$DiaryResponse">
+        SELECT  diary_no AS diaryNo
+             ,  member_no AS memberNo
+             ,  title
+             ,  memo
+             ,  DATE(created_dt) AS createdDt
+             ,  DATE(updated_dt) AS updatedDt
+           FROM RECALL_DIARY
+          WHERE member_no = #{memberNo}
+            AND deleted_dt IS NULL
+          ORDER BY created_dt DESC
+    </select>
+
+
+
+    <select id="findByIdDiary" resultType="back.Quest.model.dto.diary.DiaryDto$DiaryResponse">
+        SELECT  diary_no AS diaryNo
+             ,  member_no AS memberNo
+             ,  title AS title
+             ,  memo AS memo
+             ,  DATE(created_dt) AS createdDt
+             ,  DATE(updated_dt) AS updatedDt
+          FROM  RECALL_DIARY
+         WHERE  diary_no = #{diaryNo}
+           AND  deleted_dt IS NULL
+    </select>
+
+</mapper>
