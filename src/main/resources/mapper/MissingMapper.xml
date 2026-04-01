@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="back.Quest.mapper.missing.MissingMapper">
+
+    <insert id="insertMissing">
+        INSERT INTO RECALL_MISSING (name, age, area, gender, img, status, date)
+        VALUES ( #{name}
+        , #{age}
+        , #{area}
+        , #{gender}
+        , #{img}
+        , #{status}
+        , #{date} )
+    </insert>
+
+
+    <update id="updateMissing">
+        UPDATE RECALL_MISSING
+         SET  name = #{request.name}
+           ,  area = #{request.area}
+           ,  gender = #{request.gender}
+           ,  img = #{request.img}
+           ,  status = #{request.status}
+           ,  date = #{request.date}
+        WHERE missing_no = #{missingNo}
+          AND deleted_dt IS NULL
+    </update>
+
+
+    <update id="deleteMissing">
+        UPDATE RECALL_MISSING
+         SET deleted_dt = NOW()
+        WHERE missing_no = #{missingNo}
+          AND deleted_dt IS NULL
+    </update>
+
+
+    <select id="findAll" resultType="back.Quest.model.dto.missing.MissingDto$MissingResponse">
+        SELECT  missing_no AS missingNo
+             ,  name AS name
+             ,  age AS age
+             ,  area AS area
+             ,  gender AS gender
+             ,  img AS img
+             ,  status AS status
+             ,  date AS date
+          FROM  RECALL_MISSING
+         WHERE  deleted_id IS NULL
+    </select>
+
+
+    <select id="findById" resultType="back.Quest.model.dto.missing.MissingDto$MissingResponse">
+        SELECT  missing_no AS missingNo
+             ,  name AS name
+             ,  age AS age
+             ,  area AS area
+             ,  gender AS gender
+             ,  img AS img
+             ,  status AS status
+             ,  date AS date
+          FROM  RECALL_MISSING
+         WHERE missing_no = #{missingNo}
+           AND deleted_dt IS NULL
+    </select>
+
+
+    <select id="findSearch" resultType="back.Quest.model.dto.missing.MissingDto$MissingResponse">
+        SELECT  missing_no AS missingNo
+        ,  name AS name
+        ,  age AS age
+        ,  area AS area
+        ,  gender AS gender
+        ,  img AS img
+        ,  status AS status
+        ,  date AS date
+        FROM  RECALL_MISSING
+        <where>
+            AND deleted_dt IS NULL
+
+            <if test="keywords != null and keywords != ''">
+                AND ( area = #{keywords} OR name LIKE CONCAT('%', #{keywords}, '%')
+                )
+            </if>
+        </where>
+    </select>
+
+
+</mapper>
