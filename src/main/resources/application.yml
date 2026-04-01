@@ -7,7 +7,6 @@ server:
 
 spring:
   datasource:
-    # 드라이버 클래스명을 명시적으로 지정
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/recall?useSSL=false&serverTimezone=Asia/Seoul&characterEncoding=UTF-8&allowPublicKeyRetrieval=true
     username: root
@@ -30,14 +29,13 @@ spring:
     restart:
       enabled: true
 
-# MyBatis 설정 (spring 하위가 아니라 최상단 레벨에 위치)
+
 mybatis:
   mapper-locations: classpath:mapper/**/*.xml
   type-aliases-package: back.Quest.model.dto
   configuration:
     map-underscore-to-camel-case: true
-  # 만약 mybatis-config.xml 파일이 없다면 아래 줄은 반드시 삭제하세요.
-  # config-location: classpath:mybatis-config.xml
+    default-enum-type-handler: org.apache.ibatis.type.EnumTypeHandler
 
 springdoc:
   swagger-ui:

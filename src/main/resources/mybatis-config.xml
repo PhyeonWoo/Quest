@@ -12,6 +12,8 @@
     </settings>
 
     <typeAliases>
+        <typeAlias alias="DiaryResponse" type="back.Quest.model.dto.diary.DiaryDto$DiaryResponse"/>
+        <typeAlias alias="LoginInfo"  type="back.Quest.model.dto.auth.AuthDto$LoginInfo"/>
     </typeAliases>
 
 </configuration>
