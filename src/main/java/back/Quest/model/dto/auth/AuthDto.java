@@ -3,6 +3,7 @@ package back.Quest.model.dto.auth;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import org.apache.ibatis.type.Alias;
 
 public class AuthDto {
 
@@ -59,6 +60,7 @@ public class AuthDto {
         }
     }
 
+    @Alias("LoginInfo")
     public record LoginInfo(
             String id,
             String pw,
