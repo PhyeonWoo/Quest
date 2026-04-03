@@ -28,7 +28,7 @@ public class RedisCacheConfig {
                         RedisSerializationContext.SerializationPair.fromSerializer(RedisSerializer.string())
                 )
 
-                // ✨ 핵심 수정: GenericJackson2JsonRedisSerializer 대신 RedisSerializer.json() 사용
+                // Value 직렬화 : GenericJackson2JsonRedisSerializer 대신 RedisSerializer.json() 사용
                 .serializeValuesWith(
                         RedisSerializationContext.SerializationPair.fromSerializer(RedisSerializer.json())
                 );
