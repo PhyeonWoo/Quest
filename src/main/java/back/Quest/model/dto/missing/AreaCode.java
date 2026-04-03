@@ -1,11 +1,12 @@
 package back.Quest.model.dto.missing;
 
+import back.Quest.model.Enum.EnumClass;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public enum AreaCode {
+public enum AreaCode implements EnumClass {
     SEOUL("11","서울"),
     GYEONGGI("31","경기"),
     BUSAN("26","부산"),
