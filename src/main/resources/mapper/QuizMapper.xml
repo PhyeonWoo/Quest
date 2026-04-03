@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="back.Quest.mapper.quiz.QuizMapper">
+
+    <resultMap id="QuizFlatResultMap" type="back.Quest.model.dto.quiz.QuizDto$QuizFlatResponse">
+        <constructor>
+            <idArg column="quizNo" javaType="Long"/>
+            <arg column="memberNo" javaType="Long"/>
+            <arg column="question" javaType="String"/>
+            <arg column="distractNo" javaType="Long"/>
+            <arg column="validation" javaType="back.Quest.model.dto.quiz.ValidationStatus"
+                 typeHandler="back.Quest.config.common.CustomTypeHandler"/>
+            <arg column="text" javaType="String"/>
+        </constructor>
+    </resultMap>
+
+
+
+    <insert id="insertQuiz">
+        INSERT INTO RECALL_QUIZ (member_no, question)
+        VALUES (#{memberNo}, #{request.question} )
+    </insert>
+
+    <select id="selectLastInsertId" resultType="Long">
+        SELECT LAST_INSERT_ID()
+    </select>
+
+    <insert id="insertDistract">
+        INSERT INTO RECALL_QUIZ_DISTRACT (quiz_no, validation, text)
+        VALUES
+        <foreach collection="request" item="quiz" separator=",">
+            ( #{quizNo}, #{quiz.validation.code}, #{quiz.text} )
+        </foreach>
+
+    </insert>
+
+
+    <update id="deleteQuiz">
+        UPDATE RECALL_QUIZ
+           SET deleted_dt = NOW()
+         WHERE member_no = #{memberNo}
+           AND quiz_no = #{quizNo}
+           AND deleted_dt IS NULL
+    </update>
+
+
+    <select id="myQuiz" resultMap="QuizFlatResultMap">
+        SELECT  REQ.quiz_no AS quizNo
+             ,  REQ.member_no AS memberNo
+             ,  REQ.question AS question
+             ,  REQD.distract_no AS distractNo
+             ,  REQD.validation AS validation
+             ,  REQD.text AS text
+          FROM  RECALL_QUIZ REQ
+          LEFT  JOIN RECALL_QUIZ_DISTRACT REQD
+            ON REQ.quiz_no = REQD.quiz_no
+
+         WHERE  REQ.member_no = #{memberNo}
+           AND  REQ.deleted_dt IS NULL
+           AND  REQD.deleted_dt IS NULL
+
+         ORDER  BY REQ.quiz_no DESC,
+                   REQD.distract_no ASC
+    </select>
+
+
+    <select id="findById" resultMap="QuizFlatResultMap">
+        SELECT REQ.quiz_no AS quizNo
+            ,  REQ.member_no AS memberNo
+            ,  REQ.question AS question
+            ,  REQD.distract_no AS distractNo
+            ,  REQD.validation AS validation
+            ,  REQD.text AS text
+
+         FROM RECALL_QUIZ REQ
+
+         LEFT JOIN RECALL_QUIZ_DISTRACT REQD
+           ON REQD.quiz_no = REQ.quiz_no
+
+        WHERE REQ.quiz_no = #{quizNo}
+          AND REQ.deleted_dt IS NULL
+          AND REQD.deleted_dt IS NULL
+    </select>
+
+</mapper>
