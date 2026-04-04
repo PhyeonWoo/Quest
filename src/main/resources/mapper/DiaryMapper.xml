@@ -4,6 +4,31 @@
 
 <mapper namespace="back.Quest.mapper.diary.DiaryMapper">
 
+    <insert id="insertDiary">
+        INSERT INTO RECALL_DIARY(member_no, title, memo, created_dt, updated_dt)
+        VALUES (#{memberNo}, #{request.title}, #{request.memo}, NOW(), NOW()
+    </insert>
+
+
+    <update id="updateDiary">
+        UPDATE RECALL_DIARY
+        SET title = #{request.title}
+          , memo = #{request.memo}
+          , updated_dt = NOW()
+        WHERE member_no = #{memberNo}
+        AND diary_no = #{diaryNo}
+        AND deleted_dt IS NULL
+    </update>
+
+
+    <update id="deleteDiary">
+        UPDATE RECALL_DIARY
+        SET deleted_dt = NOW()
+        WHERE diary_no = #{diaryNo}
+        AND deleted_dt IS NULL
+    </update>
+
+
     <select id="dateDiary" resultType="back.Quest.model.dto.diary.DiaryDto$DiaryResponse">
         SELECT diary_no as diaryNo
              , member_no as memberNo

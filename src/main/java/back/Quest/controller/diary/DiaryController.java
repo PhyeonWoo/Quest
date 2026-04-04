@@ -5,6 +5,7 @@ import back.Quest.model.dto.diary.DiaryDto;
 import back.Quest.security.JwtProvider;
 import back.Quest.service.diary.DiaryService;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -27,7 +28,7 @@ public class DiaryController {
     @PostMapping
     public ApiResponse<String> insertDiary(
             @RequestHeader("Authorization") String bearerToken,
-            @RequestBody DiaryDto.DiaryRequest request
+            @Valid @RequestBody DiaryDto.DiaryRequest request
     ) {
         log.info("Insert Diary Request");
         String token = jwtProvider.resolveToken(bearerToken);
@@ -48,7 +49,7 @@ public class DiaryController {
     public ApiResponse<String> updateDiary(
             @RequestHeader("Authorization") String bearerToken,
             @PathVariable Long diaryNo,
-            @RequestBody DiaryDto.DiaryUpdateRequest request
+            @Valid @RequestBody DiaryDto.DiaryUpdateRequest request
     ) {
         String token = jwtProvider.resolveToken(bearerToken);
         Long memberNo = jwtProvider.getMemberNo(token);
@@ -62,7 +63,7 @@ public class DiaryController {
             summary = "다이어리 삭제",
             description = "요청을 통해 다이어리를 삭제"
     )
-    @PutMapping("/delete/{diaryNo}")
+    @DeleteMapping("/delete/{diaryNo}")
     public ApiResponse<String> deleteDiary(
             @RequestHeader("Authorization") String bearerToken,
             @PathVariable Long diaryNo
