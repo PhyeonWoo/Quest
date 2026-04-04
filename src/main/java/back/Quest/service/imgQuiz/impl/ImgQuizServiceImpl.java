@@ -6,14 +6,19 @@ import back.Quest.model.Enum.ValidationStatus;
 import back.Quest.model.dto.imgQuiz.ImgQuizDto;
 import back.Quest.service.imgQuiz.ImgQuizService;
 import back.Quest.service.imgQuiz.assembler.ImgQuizAssembler;
+import com.google.cloud.storage.Bucket;
+import com.google.firebase.cloud.StorageClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
@@ -27,6 +32,7 @@ public class ImgQuizServiceImpl implements ImgQuizService {
 
 
     @Override
+    @CacheEvict(value = "imgQuizList", key = "#memberNo")
     public void insertImgQuiz(Long memberNo, MultipartFile image, ImgQuizDto.ImgQuizRequest request) {
         log.info("Insert ImgQuiz Request");
 
@@ -48,6 +54,7 @@ public class ImgQuizServiceImpl implements ImgQuizService {
     }
 
     @Override
+    @CacheEvict(value = "imgQuizList", key = "#memberNo")
     public void deleteImgQuiz(Long memberNo, Long imgQuizNo) {
         int deleteImgCount = imgQuizMapper.deleteImgQuiz(memberNo, imgQuizNo);
         if (deleteImgCount == 0) {
@@ -69,6 +76,7 @@ public class ImgQuizServiceImpl implements ImgQuizService {
 
 
     @Override
+    @Cacheable(value = "imgQuizList", key = "#imgQuizNo")
     public ImgQuizDto.ImgQuizResponse findById(Long imgQuizNo) {
         List<ImgQuizDto.ImgQuizFlatResponse> response = imgQuizMapper.findById(imgQuizNo);
         if (response == null || response.isEmpty()) {
@@ -103,22 +111,24 @@ public class ImgQuizServiceImpl implements ImgQuizService {
 
     private String saveImg(MultipartFile image) {
         try {
-            String uploadDir = System.getProperty("user.dir") + "/uploads/imgQuiz/";
-            File dir = new File(uploadDir);
-
-            if (!dir.exists()) {
-                dir.mkdirs();
-            }
-
             String fileName = UUID.randomUUID() + "_" + image.getOriginalFilename();
-            String filePath = uploadDir + fileName;
-            image.transferTo(new File(filePath));
 
-            return "/imgQuiz/" + filePath;
+            Bucket bucket = StorageClient.getInstance().bucket();
+            bucket.create(
+                    "imgQuiz/" + fileName,
+                    image.getBytes(),
+                    image.getContentType()
+            );
+
+            String encodedFileName = URLEncoder.encode("imgQuiz/" + fileName, StandardCharsets.UTF_8);
+            return "https://firebasestorage.googleapis.com/v0/b/"
+                    + "recall-c03b1.firebasestorage.app"
+                    + "/o/" + encodedFileName
+                    + "?alt=media";
+
         } catch (IOException e) {
-            log.error("저장 실패 : {}",e.getMessage());
+            log.error("Firebase 저장 실패 : {}", e.getMessage());
             throw new CustomException.InvalidRequestException("이미지 저장 실패");
         }
     }
-
 }

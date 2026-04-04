@@ -6,14 +6,14 @@
 
     <resultMap id="ImgQuizFlatResultMap" type="back.Quest.model.dto.imgQuiz.ImgQuizDto$ImgQuizFlatResponse">
         <constructor>
-            <arg column="imgQuizNo"     javaType="Long"/>
-            <arg column="memberNo"      javaType="Long"/>
-            <arg column="question"      javaType="String"/>
-            <arg column="imgUrl"        javaType="String"/>
-            <arg column="imgDistractNo" javaType="Long"/>
-            <arg column="validation"    javaType="back.Quest.model.Enum.ValidationStatus"
+            <arg name="imgQuizNo" column="imgQuizNo"  javaType="Long"/>
+            <arg name="memberNo" column="memberNo"      javaType="Long"/>
+            <arg name="question" column="question"      javaType="String"/>
+            <arg name="imgUrl" column="imgUrl"        javaType="String"/>
+            <arg name="imgDistractNo" column="imgDistractNo" javaType="Long"/>
+            <arg name="validation" column="validation"    javaType="back.Quest.model.Enum.ValidationStatus"
                  typeHandler="back.Quest.config.common.CustomTypeHandler"/>
-            <arg column="text"          javaType="String"/>
+            <arg name="text" column="text"          javaType="String"/>
         </constructor>
     </resultMap>
 

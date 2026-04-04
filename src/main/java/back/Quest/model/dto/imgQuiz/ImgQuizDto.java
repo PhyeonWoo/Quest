@@ -1,6 +1,7 @@
 package back.Quest.model.dto.imgQuiz;
 
 import back.Quest.model.Enum.ValidationStatus;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import java.util.List;
 
@@ -20,6 +21,7 @@ public class ImgQuizDto {
 
 
     //Controller Response
+    @JsonDeserialize
     public record ImgQuizResponse(
             Long imgQuizNo,
             Long memberNo,
@@ -27,6 +29,7 @@ public class ImgQuizDto {
             String question,
             List<ImgQuizDistractResponse> list
     ) {}
+    @JsonDeserialize
     public record ImgQuizDistractResponse (
             Long imgDistractNo,
             Long imgQuizNo,
