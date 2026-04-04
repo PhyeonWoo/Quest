@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="back.Quest.mapper.imgQuiz.ImgQuizMapper">
+
+    <resultMap id="ImgQuizFlatResultMap" type="back.Quest.model.dto.imgQuiz.ImgQuizDto$ImgQuizFlatResponse">
+        <constructor>
+            <arg column="imgQuizNo"     javaType="Long"/>
+            <arg column="memberNo"      javaType="Long"/>
+            <arg column="question"      javaType="String"/>
+            <arg column="imgUrl"        javaType="String"/>
+            <arg column="imgDistractNo" javaType="Long"/>
+            <arg column="validation"    javaType="back.Quest.model.Enum.ValidationStatus"
+                 typeHandler="back.Quest.config.common.CustomTypeHandler"/>
+            <arg column="text"          javaType="String"/>
+        </constructor>
+    </resultMap>
+
+
+    <insert id="insertImgQuiz">
+        INSERT INTO RECALL_IMG_QUIZ (member_no, img_url, question)
+        VALUES (#{memberNo}, #{imgUrl}, #{request.question})
+    </insert>
+
+    <insert id="insertImgDistract">
+        INSERT INTO RECALL_IMG_DISTRACT (img_quiz_no, validation, text)
+        VALUES
+        <foreach collection="request" item="imgQuiz" separator=",">
+            ( #{imgQuizNo}, #{imgQuiz.validation.code}, #{imgQuiz.text} )
+        </foreach>
+
+    </insert>
+
+    <select id="selectLastId" resultType="Long">
+        SELECT LAST_INSERT_ID()
+    </select>
+
+
+    <update id="deleteImgQuiz">
+        UPDATE RECALL_IMG_QUIZ
+        SET deleted_dt = NOW()
+        WHERE member_no = #{memberNo}
+        AND img_quiz_no = #{imgQuizNo}
+        AND deleted_dt IS NULL
+    </update>
+
+
+    <select id="myQuiz" resultMap="ImgQuizFlatResultMap">
+        SELECT REIQ.img_quiz_no AS imgQuizNo
+        , REIQ.member_no AS memberNo
+        , REIQ.question AS question
+        , REIQ.img_url AS imgUrl
+        , REID.img_distract_no AS imgDistractNo
+        , REID.validation AS validation
+        , REID.text AS text
+        FROM RECALL_IMG_QUIZ REIQ
+
+        LEFT JOIN RECALL_IMG_DISTRACT REID
+        ON REID.img_quiz_no = REIQ.img_quiz_no
+
+        WHERE REIQ.member_no = #{memberNo}
+        AND REIQ.deleted_dt IS NULL
+        AND REID.deleted_dt IS NULL
+    </select>
+
+
+    <select id="findById" resultMap="ImgQuizFlatResultMap">
+        SELECT REIQ.img_quiz_no AS imgQuizNo
+        , REIQ.member_no AS memberNo
+        , REIQ.img_url AS imgUrl
+        , REIQ.question AS question
+        , REID.img_distract_no AS imgDistractNo
+        , REID.validation AS validation
+        , REID.text AS text
+
+        FROM RECALL_IMG_QUIZ REIQ
+
+        LEFT JOIN RECALL_IMG_DISTRACT REID
+        ON REID.img_quiz_no = REIQ.img_quiz_no
+
+        WHERE REIQ.img_quiz_no = #{imgQuizNo}
+        AND REIQ.deleted_dt IS NULL
+        AND REID.deleted_dt IS NULL
+    </select>
+
+
+</mapper>
+
