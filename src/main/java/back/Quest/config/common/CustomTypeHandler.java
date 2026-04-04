@@ -3,7 +3,7 @@ package back.Quest.config.common;
 import back.Quest.model.Enum.EnumClass;
 import back.Quest.model.dto.missing.AreaCode;
 import back.Quest.model.dto.missing.MissingStatus;
-import back.Quest.model.dto.quiz.ValidationStatus;
+import back.Quest.model.Enum.ValidationStatus;
 import org.apache.ibatis.type.BaseTypeHandler;
 import org.apache.ibatis.type.JdbcType;
 import org.apache.ibatis.type.MappedTypes;

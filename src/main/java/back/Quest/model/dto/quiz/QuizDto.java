@@ -1,5 +1,6 @@
 package back.Quest.model.dto.quiz;
 
+import back.Quest.model.Enum.ValidationStatus;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 

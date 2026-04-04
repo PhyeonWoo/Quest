@@ -3,7 +3,7 @@ package back.Quest.service.quiz.impl;
 import back.Quest.config.exception.CustomException;
 import back.Quest.mapper.quiz.QuizMapper;
 import back.Quest.model.dto.quiz.QuizDto;
-import back.Quest.model.dto.quiz.ValidationStatus;
+import back.Quest.model.Enum.ValidationStatus;
 import back.Quest.service.quiz.QuizService;
 import back.Quest.service.quiz.assembler.QuizAssembler;
 import lombok.RequiredArgsConstructor;

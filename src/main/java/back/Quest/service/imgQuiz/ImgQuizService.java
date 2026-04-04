@@ -1,7 +1,6 @@
 package back.Quest.service.imgQuiz;
 
 import back.Quest.model.dto.imgQuiz.ImgQuizDto;
-import back.Quest.model.dto.quiz.QuizDto;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;

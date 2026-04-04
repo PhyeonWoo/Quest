@@ -10,7 +10,7 @@
             <arg column="memberNo" javaType="Long"/>
             <arg column="question" javaType="String"/>
             <arg column="distractNo" javaType="Long"/>
-            <arg column="validation" javaType="back.Quest.model.dto.quiz.ValidationStatus"
+            <arg column="validation" javaType="back.Quest.model.Enum.ValidationStatus"
                  typeHandler="back.Quest.config.common.CustomTypeHandler"/>
             <arg column="text" javaType="String"/>
         </constructor>

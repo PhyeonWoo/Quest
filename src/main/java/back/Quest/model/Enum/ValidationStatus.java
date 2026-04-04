@@ -1,6 +1,5 @@
-package back.Quest.model.dto.quiz;
+package back.Quest.model.Enum;
 
-import back.Quest.model.Enum.EnumClass;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
