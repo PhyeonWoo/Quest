@@ -6,6 +6,8 @@ import back.Quest.model.dto.diary.DiaryDto;
 import back.Quest.service.diary.DiaryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,6 +26,7 @@ public class DiaryServiceImpl implements DiaryService {
 
     @Override
     @Transactional
+    @CacheEvict(value = "diaryList", key = "#memberNo")
     public void insertDiary(Long memberNo, DiaryDto.DiaryRequest request) {
         log.info("Insert Diary Request");
         int diaryCount = diaryMapper.insertDiary(memberNo, request);
@@ -38,6 +41,7 @@ public class DiaryServiceImpl implements DiaryService {
 
     @Override
     @Transactional
+    @CacheEvict(value = "diaryList", key = "#memberNo")
     public void updateDiary(Long memberNo, Long diaryNo, DiaryDto.DiaryUpdateRequest request) {
         log.info("Update Diary Request");
         int updateDiary = diaryMapper.updateDiary(memberNo, diaryNo, request);
@@ -52,6 +56,7 @@ public class DiaryServiceImpl implements DiaryService {
 
     @Override
     @Transactional
+    @CacheEvict(value = "diaryList",key = "#memberNo")
     public void deleteDiary(Long memberNo, Long diaryNo) {
         log.info("Delete Diary Request");
 
@@ -80,6 +85,7 @@ public class DiaryServiceImpl implements DiaryService {
     }
 
     @Override
+    @Cacheable(value = "diaryList", key = "#memberNo")
     public List<DiaryDto.DiaryResponse> myDiary(Long memberNo) {
         log.info("MyDiary find Request");
         List<DiaryDto.DiaryResponse> response = diaryMapper.myDiary(memberNo);
@@ -92,6 +98,8 @@ public class DiaryServiceImpl implements DiaryService {
         log.info("MyDiary Response Success : {}",response.size());
         return response;
     }
+
+
 
 
 

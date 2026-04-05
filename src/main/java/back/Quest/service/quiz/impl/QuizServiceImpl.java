@@ -57,7 +57,6 @@ public class QuizServiceImpl implements QuizService {
 
 
     @Override
-    @Cacheable(value = "quizList", key = "#memberNo")
     public List<QuizDto.QuizResponse> myQuiz(Long memberNo) {
         log.info("MyQuiz find Request");
 
@@ -73,6 +72,7 @@ public class QuizServiceImpl implements QuizService {
     }
 
     @Override
+    @Cacheable(value = "quizList", key = "#memberNo")
     public QuizDto.QuizResponse findById(Long quizNo) {
         log.info("Single find Quiz Request");
 
