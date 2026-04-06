@@ -1,5 +1,6 @@
 package back.Quest.service.auth.impl;
 
+import back.Quest.config.exception.CustomException;
 import back.Quest.mapper.auth.AuthMapper;
 import back.Quest.model.dto.auth.AuthDto;
 import back.Quest.redis.RedisTokenService;
@@ -23,8 +24,12 @@ public class AuthServiceImpl implements AuthService {
     public void singUp(AuthDto.SignUpRequest request) {
         log.info("Sign Request id : {}",request.id());
 
-        if (authMapper.existsById(request.id()) || authMapper.existsByEmail(request.email())) {
-            throw new IllegalArgumentException("이미 존재하는 ID 및 email");
+        if (authMapper.existsById(request.id())) {
+            throw new CustomException.DuplicateException("이미 존재하는 ID 입니다.");
+        }
+
+        if(authMapper.existsByEmail(request.email())) {
+            throw new CustomException.DuplicateException("이미 존재하는 Email 입니다.");
         }
 
         authMapper.insertMember(AuthDto.MemberCreateRequest.from(request));
@@ -47,12 +52,12 @@ public class AuthServiceImpl implements AuthService {
 
         if(info == null) {
             log.warn("Not found");
-            throw new IllegalArgumentException("없음");
+            throw new CustomException.NotFoundException("존재하지 않습니다.");
         }
 
         if(!passwordEncoder.matches(request.pw(), info.pw())) {
             log.error("Not match");
-            throw new IllegalArgumentException("일치하지 않습니다");
+            throw new CustomException.InvalidRequestException("일치하지 않습니다.");
         }
 
         String accessToken = jwtProvider.createAccessToken(
@@ -99,14 +104,14 @@ public class AuthServiceImpl implements AuthService {
         log.info("Token Reissue Request");
 
         if(!jwtProvider.validateToken(refreshToken)) {
-            throw new IllegalArgumentException("유효하지 않거나 만료된 refreshToken 입니다.");
+            throw new CustomException.InvalidRequestException("유효하지 않거나 만료된 refreshToken 입니다.");
         }
 
         String id = jwtProvider.getUserId(refreshToken);
         String saveRefreshToken = redisTokenService.getRefreshToken(id);
 
         if (saveRefreshToken == null || !saveRefreshToken.equals(refreshToken)) {
-            throw new IllegalArgumentException("RefreshToken이 맞지 않습니다.");
+            throw new CustomException.InvalidRequestException("유효하지 않은 토큰");
         }
 
         AuthDto.LoginInfo info = authMapper.findId(id);

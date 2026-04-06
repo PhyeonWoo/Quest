@@ -60,7 +60,17 @@ public class DiaryServiceImpl implements DiaryService {
     public void deleteDiary(Long memberNo, Long diaryNo) {
         log.info("Delete Diary Request");
 
-        validDelete(memberNo,diaryNo);
+        if (diaryNo == null) {
+            throw new CustomException.InvalidRequestException("존재하지 않습니다.");
+        }
+        DiaryDto.DiaryResponse response = diaryMapper.findByIdDiary(diaryNo);
+
+        if(response == null) {
+            throw new CustomException.NotFoundException("존재하지 않음");
+        }
+        if(!response.memberNo().equals(memberNo)) {
+            throw new CustomException.InvalidRequestException("일치하지 않음");
+        }
 
         int deleteDiary = diaryMapper.deleteDiary(memberNo, diaryNo);
         if(deleteDiary == 0) {
@@ -99,26 +109,4 @@ public class DiaryServiceImpl implements DiaryService {
         return response;
     }
 
-
-
-
-
-    private void validDelete(Long memberToken, Long diaryNo) {
-        if (diaryNo == null) {
-            throw new CustomException.InvalidRequestException("빈칸입니다.");
-        }
-        validDiaryOwner(memberToken, diaryNo);
-    }
-
-
-    private void validDiaryOwner(Long memberToken, Long diary_no) {
-        DiaryDto.DiaryResponse response = diaryMapper.findByIdDiary(diary_no);
-
-        if (response == null) {
-            throw new CustomException.NotFoundException("존재하지 않습니다.");
-        }
-        if (!response.memberNo().equals(memberToken)) {
-            throw new CustomException.InvalidRequestException("일치하지 않습니다.");
-        }
-    }
 }
