@@ -60,9 +60,10 @@ public class SecurityConfig {
 
 
                 .authorizeHttpRequests(auth -> auth
-                        // 인증 없이 접근 경로
-                        .requestMatchers("/api/v1/auth","/api/v1/auth/login","/api/v1/auth/reissue",
-                                "/api/v1/diary/**", "/api/v1/missing/**","/api/v1/quiz/**").permitAll()
+                        .requestMatchers("/api/v1/auth/logout").authenticated() // 인증 필요
+                        .requestMatchers("/api/v1/auth/**", "/api/v1/diary/**",
+                                "/api/v1/missing/**","/api/v1/quiz/**", "/api/v1/imgQuiz/**",
+                                "/api/v1/attempt/**").permitAll()
                         .requestMatchers(
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
@@ -72,7 +73,6 @@ public class SecurityConfig {
                                 "/api-docs/**",
                                 "/webjars/**"
                         ).permitAll() // Swagger
-                        .requestMatchers("/api/v1/auth/logout").authenticated() // 인증 필요
                         .anyRequest().authenticated()
                 )
 
