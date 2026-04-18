@@ -32,6 +32,9 @@ public interface QuizMapper {
     // quizNo로 퀴즈 단건 조회 (flat 데이터)
     List<QuizDto.QuizFlatResponse>  findById(Long quizNo);
 
+
+    QuizDto.QuizFlatResponse byId(Long quizNo);
+
 //    /**
 //     * 문제 ID로 모든 선택지 조회
 //     */

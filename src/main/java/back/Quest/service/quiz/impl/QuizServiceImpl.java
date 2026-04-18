@@ -45,6 +45,11 @@ public class QuizServiceImpl implements QuizService {
     @CacheEvict(value = "quizList", key = "#memberNo")
     public void deleteQuiz(Long memberNo, Long quizNo) {
         log.info("Delete Quiz Request");
+        QuizDto.QuizFlatResponse response = quizMapper.byId(quizNo);
+        if (!response.memberNo().equals(memberNo)) {
+            throw new CustomException.InvalidRequestException("권한 없음");
+        }
+
         int deleteCount = quizMapper.deleteQuiz(memberNo, quizNo);
         if(deleteCount == 0) {
             log.warn("Delete Fail");
