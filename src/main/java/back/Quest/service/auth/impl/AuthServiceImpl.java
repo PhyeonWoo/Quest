@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Slf4j
@@ -21,7 +22,8 @@ public class AuthServiceImpl implements AuthService {
     private final RedisTokenService redisTokenService;
 
     @Override
-    public void singUp(AuthDto.SignUpRequest request) {
+    @Transactional
+    public void signUp(AuthDto.SignUpRequest request) {
         log.info("Sign Request id : {}",request.id());
 
         if (authMapper.existsById(request.id())) {
@@ -123,7 +125,7 @@ public class AuthServiceImpl implements AuthService {
         );
 
         String newRefreshToken = jwtProvider.createRefreshToken(info.id(), info.memberNo());
-        long refreshTokenExpirationMills = 7L * 24 * 60 * 60 * 10000;
+        long refreshTokenExpirationMills = 7L * 24 * 60 * 60 * 1000;
 
         redisTokenService.saveRefreshToken(id, newRefreshToken,refreshTokenExpirationMills);
         log.info("Token Reissue Success ID : {}",id);

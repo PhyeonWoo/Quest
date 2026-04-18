@@ -22,10 +22,10 @@ public class AuthController {
             description = "정보들을 받아와 회원가입을 합니다."
     )
     @PostMapping
-    public ApiResponse<String> singUp(
+    public ApiResponse<String> signUp(
             @Valid @RequestBody AuthDto.SignUpRequest request
     ) {
-        authService.singUp(request);
+        authService.signUp(request);
         return ApiResponse.ok("생성 완료");
     }
 
