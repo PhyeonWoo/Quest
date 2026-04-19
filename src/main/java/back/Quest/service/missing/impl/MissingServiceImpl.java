@@ -113,7 +113,7 @@ public class MissingServiceImpl implements MissingService {
     @Override
     public List<MissingDto.MissingResponse> findByKeyword(MissingDto.MissingSearchRequest request) {
         if (request.keywords() == null) {
-            throw new CustomException.InvalidRequestException("오류");
+            throw new CustomException.InvalidRequestException("검색어를 입력해주세요.");
         }
         List<MissingDto.MissingResponse> responses = missingMapper.findSearch(request);
 

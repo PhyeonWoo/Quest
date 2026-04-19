@@ -52,7 +52,7 @@ public class MissingController {
             summary = "실종자 목록 삭제",
             description = "요청을 통해 실종자 목록을 삭제합니다"
     )
-    @PutMapping("/delete/{missingNo}")
+    @DeleteMapping("/delete/{missingNo}")
     public ApiResponse<String> deleteMissing(
             @PathVariable Long missingNo
     ) {
