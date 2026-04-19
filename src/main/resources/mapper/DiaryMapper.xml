@@ -6,7 +6,7 @@
 
     <insert id="insertDiary">
         INSERT INTO RECALL_DIARY(member_no, title, memo, created_dt, updated_dt)
-        VALUES (#{memberNo}, #{request.title}, #{request.memo}, NOW(), NOW()
+        VALUES (#{memberNo}, #{request.title}, #{request.memo}, NOW(), NOW())
     </insert>
 
 
