@@ -1,65 +1,99 @@
-# Quest
+# Quest - 퀴즈 & 실종자 관리 플랫폼
 
-퀴즈, 이미지 퀴즈, 다이어리, 인증 기능을 포함한 Spring Boot 기반 백엔드 프로젝트입니다.  
-JWT + Spring Security 기반 인증, Redis 기반 인증 보조 저장소, MyBatis + MySQL 기반 데이터 처리 구조로 구성되어 있습니다.
+[![Java](https://img.shields.io/badge/Java-21%2B-orange)](https://www.java.com/)
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.x-brightgreen)](https://spring.io/projects/spring-boot)
+[![MySQL](https://img.shields.io/badge/MySQL-8.0-blue)](https://www.mysql.com/)
+[![Redis](https://img.shields.io/badge/Redis-7-red)](https://redis.io/)
+[![Firebase](https://img.shields.io/badge/Firebase-Storage-yellow)](https://firebase.google.com/)
 
----
-
-## 📌 프로젝트 소개
-
-**Quest**는 여러 도메인 기능을 모듈 단위로 분리해 구성한 Java/Spring 백엔드 프로젝트입니다.  
-현재 저장소 구조를 기준으로 다음과 같은 기능 영역이 확인됩니다.
-
-- 인증(Auth)
-- 다이어리(Diary)
-- 텍스트 퀴즈(Quiz)
-- 이미지 퀴즈(ImgQuiz)
-- Missing 기능
-- 시도/응답 처리 관련 로직(Attempt)
-
-각 기능은 `controller`, `service`, `mapper`, `model` 계층으로 분리되어 있으며, 유지보수와 확장성을 고려한 구조를 따릅니다.
-
----
-
-## 🛠 Tech Stack
-
-### Backend
-- Java 21
-- Spring Boot 4.0.5
-- Spring Web
-- Spring Validation
-- Spring Security
-- JWT (`jjwt`)
-
-### Database / Persistence
-- MySQL
-- MyBatis
-- JDBC
-- Redis
-
-### Documentation / View / Batch
-- Swagger
+이미지/텍스트 퀴즈 생성, 다이어리 작성, 실종자 정보 관리 기능을 제공하는 **REST API 서버**입니다.
 
 
-✨ 주요 특징
-1. 인증 및 보안
-Spring Security 기반 인증 구조
-JWT 기반 로그인 인증 처리
-Redis를 활용한 인증 관련 보조 저장소 구성
-회원가입 / 로그인 / 로그아웃 / 재발급 흐름을 확장 가능한 구조로 분리
-2. 도메인별 계층 분리
-기능별로 아래 계층이 분리되어 있어 역할이 명확합니다.
+## 🎯 프로젝트 개요
 
-controller : API 요청/응답 처리
-service : 비즈니스 로직 처리
-mapper : MyBatis 기반 DB 접근
-model : DTO / Enum / 데이터 모델 관리
-3. 퀴즈 및 기록 기능
-텍스트 퀴즈 기능
-이미지 퀴즈 기능
-다이어리 기능
-Missing 관련 기능 분리 구성
-4. 문서화 및 테스트
-Swagger(OpenAPI) 기반 API 문서화 가능
-Auth / Diary 중심의 테스트 코드 포함
-Spring Boot Test, Mockito, Spring Security Test 활용
+Quest는 사용자가 직접 퀴즈를 만들고 풀 수 있는 학습 플랫폼입니다.
+텍스트 퀴즈뿐만 아니라 Firebase 기반의 이미지 퀴즈를 지원하며,
+개인 다이어리 작성과 실종자 정보 공유 기능을 함께 제공합니다.
+
+
+## 주요 특징
+
+✅ 텍스트 & 이미지 기반 퀴즈 생성/풀기\
+✅ Firebase Cloud Storage 이미지 업로드\
+✅ JWT 기반 인증 (Access + Refresh Token 이중 구조)\
+✅ Redis 블랙리스트를 이용한 로그아웃 토큰 무효화\
+✅ Redis 캐싱으로 퀴즈 목록 조회 성능 최적화\
+✅ 날짜별 개인 다이어리 관리\
+✅ 실종자 정보 등록/수정/검색 (지역코드 기반)
+<br>
+<br>
+
+## 기술 스택
+
+| Category | Technology |
+| :--- | :--- |
+| **Backend** | Java 21, Spring Boot |
+| **Security** | Spring Security, JWT, BCrypt |
+| **ORM** | MyBatis |
+| **Database** | MySQL |
+| **Cache** | Redis |
+| **Storage** | Firebase Cloud Storage |
+| **Docs** | SpringDoc OpenAPI (Swagger UI) |
+| **Test** | JUnit 5, Mockito |
+<br>
+<br>
+
+## 핵심 구현 기능
+
+**1. 인증/인가 (JWT + Redis)**
+- 회원가입 시 ID/이메일 중복 검증, 비밀번호 정규식 검증 (영문+숫자+특수문자 8자 이상)
+- Access Token (30분) / Refresh Token (7일) 이중 토큰 구조
+- Redis를 이용한 Refresh Token 저장 및 토큰 갱신
+- 로그아웃 시 Access Token을 Redis 블랙리스트에 등록하여 재사용 차단
+
+**2. 퀴즈 (Quiz)**
+- 텍스트 기반 객관식 퀴즈 생성/삭제/조회
+- 보기(Distractor) 포함 다지선다 구성 (CORRECT / INCORRECT 상태 관리)
+- 사용자가 정답 번호 제출 시 즉시 채점 및 결과 반환
+- Redis 캐싱으로 퀴즈 목록 조회 성능 최적화
+- 소유자 검증 — 본인 퀴즈만 삭제 가능
+
+**3. 이미지 퀴즈 (ImgQuiz)**
+- multipart/form-data 방식 이미지 업로드 + 퀴즈 생성 동시 처리
+- Firebase Cloud Storage 연동 이미지 저장 (UUID 기반 파일명)
+- 텍스트 퀴즈와 동일한 채점 로직 적용
+- Redis 캐싱 적용
+
+**4. 다이어리 (Diary)**
+- 개인 다이어리 CRUD
+- 날짜(LocalDate) 기반 단건 조회 지원
+- 제목(100자), 내용(500자) 유효성 검사
+- JWT 기반 본인 소유 검증
+
+**5. 실종자 관리 (Missing)**
+- 실종자 등록/수정/소프트 삭제/전체 조회
+- 키워드 및 지역코드(AreaCode) 기반 검색
+- 인증 없이 공개 접근 가능
+- OPEN / CLOSED 상태 관리 — 종결 사건 수정 차단
+<br>
+
+## 아키텍처 설계 포인트
+
+**계층 구조**
+
+Controller → Service (Interface/Impl) → Mapper (MyBatis) → DB
+
+<br>
+<br>
+
+## API 구조 요약
+
+| 도메인 | 엔드포인트 | 주요 기능 |
+| :--- | :--- | :--- |
+| **Auth** | `/api/v1/auth/**` | 회원가입, 로그인, 로그아웃, 토큰 재발급 |
+| **Quiz** | `/api/v1/quiz/**` | 퀴즈 생성/삭제/조회, 정답 제출 |
+| **ImgQuiz** | `/api/v1/imgQuiz/**` | 이미지 퀴즈 생성/삭제/조회, 정답 제출 |
+| **Diary** | `/api/v1/diary/**` | 다이어리 CRUD, 날짜별 조회 |
+| **Missing** | `/api/v1/missing/**` | 실종자 등록/수정/검색 (인증 불필요) |
+
+Swagger UI: `http://localhost:8080/swagger-ui.html`
