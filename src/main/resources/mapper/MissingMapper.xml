@@ -47,7 +47,7 @@
              ,  status AS status
              ,  date AS date
           FROM  RECALL_MISSING
-         WHERE  deleted_id IS NULL
+         WHERE  deleted_dt IS NULL
     </select>
 
 
