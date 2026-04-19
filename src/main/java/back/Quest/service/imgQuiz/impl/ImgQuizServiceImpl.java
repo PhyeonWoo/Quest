@@ -10,6 +10,7 @@ import com.google.cloud.storage.Bucket;
 import com.google.firebase.cloud.StorageClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -29,6 +30,9 @@ import java.util.UUID;
 @Slf4j
 public class ImgQuizServiceImpl implements ImgQuizService {
     private final ImgQuizMapper imgQuizMapper;
+
+    @Value("${firebase.bucket}")
+    private String firebaseBucket;
 
 
     @Override
@@ -56,6 +60,14 @@ public class ImgQuizServiceImpl implements ImgQuizService {
     @Override
     @CacheEvict(value = "imgQuizList", key = "#memberNo")
     public void deleteImgQuiz(Long memberNo, Long imgQuizNo) {
+        List<ImgQuizDto.ImgQuizFlatResponse> list = imgQuizMapper.findById(imgQuizNo);
+        if (list == null || list.isEmpty()) {
+            throw new CustomException.NotFoundException("존재하지 않는 퀴즈입니다.");
+        }
+        if (!list.get(0).memberNo().equals(memberNo)) {
+            throw new CustomException.InvalidRequestException("권한 없음");
+        }
+
         int deleteImgCount = imgQuizMapper.deleteImgQuiz(memberNo, imgQuizNo);
         if (deleteImgCount == 0) {
             throw new CustomException.InvalidRequestException("삭제 실패");
@@ -70,7 +82,7 @@ public class ImgQuizServiceImpl implements ImgQuizService {
             return Collections.emptyList();
         }
 
-        log.info("");
+        log.info("MyImgQuiz find Response Success");
         return ImgQuizAssembler.toGroup(response);
     }
 
@@ -80,7 +92,7 @@ public class ImgQuizServiceImpl implements ImgQuizService {
     public ImgQuizDto.ImgQuizResponse findById(Long imgQuizNo) {
         List<ImgQuizDto.ImgQuizFlatResponse> response = imgQuizMapper.findById(imgQuizNo);
         if (response == null || response.isEmpty()) {
-            return null;
+            throw new CustomException.NotFoundException("퀴즈 없음");
         }
 
         ImgQuizDto.ImgQuizResponse imgResponse = ImgQuizAssembler.toGroup(response).getFirst();
@@ -122,7 +134,7 @@ public class ImgQuizServiceImpl implements ImgQuizService {
 
             String encodedFileName = URLEncoder.encode("imgQuiz/" + fileName, StandardCharsets.UTF_8);
             return "https://firebasestorage.googleapis.com/v0/b/"
-                    + "recall-c03b1.firebasestorage.app"
+                    + firebaseBucket
                     + "/o/" + encodedFileName
                     + "?alt=media";
 
