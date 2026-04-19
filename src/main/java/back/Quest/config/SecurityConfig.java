@@ -60,19 +60,21 @@ public class SecurityConfig {
 
 
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/v1/auth/logout").authenticated() // 인증 필요
-                        .requestMatchers("/api/v1/auth/**", "/api/v1/diary/**",
-                                "/api/v1/missing/**","/api/v1/quiz/**", "/api/v1/imgQuiz/**",
-                                "/api/v1/attempt/**").permitAll()
                         .requestMatchers(
-                                "/swagger-ui/**",
-                                "/swagger-ui.html",
-                                "/v3/api-docs",
-                                "/v3/api-docs/**",
-                                "/api-docs",
-                                "/api-docs/**",
-                                "/webjars/**"
-                        ).permitAll() // Swagger
+                                "/swagger-ui/**", "/swagger-ui.html",
+                                "/v3/api-docs", "/v3/api-docs/**",
+                                "/api-docs", "/api-docs/**", "/webjars/**"
+                        ).permitAll()
+                        .requestMatchers("/api/v1/auth/login", "/api/v1/auth/reissue").permitAll()
+                        .requestMatchers("/api/v1/missing/**").permitAll()
+                        .requestMatchers(
+                                "/api/v1/diary/**",
+                                "/api/v1/quiz/**",
+                                "/api/v1/imgQuiz/**",
+                                "/api/v1/attempt/**"
+                        ).authenticated()
+                        .requestMatchers("/api/v1/auth/**").permitAll()
+                        .requestMatchers("/api/v1/auth/logout").authenticated()
                         .anyRequest().authenticated()
                 )
 

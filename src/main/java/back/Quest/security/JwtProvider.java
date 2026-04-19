@@ -3,6 +3,7 @@ package back.Quest.security;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -16,7 +17,10 @@ import java.util.Date;
 @Component
 public class JwtProvider {
 
-    private String secret = "hellohello1234hello1234hello12hello1231441415";
+
+    @Value("${jwt.secret}")
+    private String secret;
+
     private Key key;
 
     @PostConstruct
@@ -88,7 +92,7 @@ public class JwtProvider {
             Jwts.parserBuilder()
                     .setSigningKey(key)
                     .build()
-                    .parseClaimsJwt(token);
+                    .parseClaimsJws(token);
             return true;
         } catch (JwtException | IllegalArgumentException e) {
             return false;
