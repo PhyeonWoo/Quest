@@ -4,6 +4,20 @@
 
 <mapper namespace="back.Quest.mapper.auth.AuthMapper">
 
+    <insert id="insertLogin">
+        INSERT INTO RECALL_LOGIN (member_no, id, pw, role)
+        VALUES (#{memberNo}, #{id}, #{pw}, 'ROLE_USER')
+    </insert>
+
+    <insert id="insertMember">
+        INSERT INTO RECALL_MEMBER (email, name, phone_number)
+        VALUES (#{email}, #{name}, #{phoneNumber})
+    </insert>
+
+    <select id="lastInsertId" resultType="Long">
+        SELECT LAST_INSERT_ID()
+    </select>
+
     <select id="existsById" resultType="boolean">
         SELECT COUNT(*) > 0
         FROM RECALL_LOGIN

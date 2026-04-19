@@ -21,6 +21,8 @@ public class AuthServiceImpl implements AuthService {
     private final JwtProvider jwtProvider;
     private final RedisTokenService redisTokenService;
 
+    private static final long REFRESH_TOKEN_EXPIRATION = 7L * 24 * 60 * 60 * 1000;
+
     @Override
     @Transactional
     public void signUp(AuthDto.SignUpRequest request) {
@@ -117,6 +119,9 @@ public class AuthServiceImpl implements AuthService {
         }
 
         AuthDto.LoginInfo info = authMapper.findId(id);
+        if (info == null) {
+            throw new CustomException.NotFoundException("존재하지 않는 사용자입니다.");
+        }
 
         String newAccessToken = jwtProvider.createAccessToken(
                 info.id(),
@@ -125,9 +130,9 @@ public class AuthServiceImpl implements AuthService {
         );
 
         String newRefreshToken = jwtProvider.createRefreshToken(info.id(), info.memberNo());
-        long refreshTokenExpirationMills = 7L * 24 * 60 * 60 * 1000;
 
-        redisTokenService.saveRefreshToken(id, newRefreshToken,refreshTokenExpirationMills);
+        redisTokenService.saveRefreshToken(id, newRefreshToken,REFRESH_TOKEN_EXPIRATION);
+
         log.info("Token Reissue Success ID : {}",id);
         return AuthDto.LoginResponse.of(newAccessToken, newRefreshToken);
     }
