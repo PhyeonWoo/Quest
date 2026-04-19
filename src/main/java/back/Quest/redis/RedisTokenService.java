@@ -45,6 +45,7 @@ public class RedisTokenService {
         );
     }
 
+    // 존재 여부
     public boolean isBlackListed(String accessToken) {
         return stringRedisTemplate.hasKey(accessToken);
     }

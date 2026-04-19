@@ -3,14 +3,18 @@ package back.Quest.config.common;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
 @Configuration
 public class FirebaseConfig {
+
+    @Value("${firebase.bucket}")
+    private String firebaseBucket;
 
     @Bean
     public FirebaseApp firebaseApp() throws IOException {
@@ -18,12 +22,11 @@ public class FirebaseConfig {
             return FirebaseApp.getInstance();
         }
 
-        FileInputStream serviceAccount =
-                new FileInputStream("src/main/resources/firebase/serviceAccountKey.json");
+        InputStream serviceAccount = getClass().getResourceAsStream("/firebase/serviceAccountKey.json");
 
         FirebaseOptions options = FirebaseOptions.builder()
                 .setCredentials(GoogleCredentials.fromStream(serviceAccount))
-                .setStorageBucket("recall-c03b1.firebasestorage.app")
+                .setStorageBucket(firebaseBucket)
                 .build();
 
         return FirebaseApp.initializeApp(options);

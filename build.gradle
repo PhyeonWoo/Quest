@@ -28,6 +28,9 @@ repositories {
 dependencies {
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.5'
 
+	//FireBase
+	implementation 'com.google.firebase:firebase-admin:9.2.0'
+
 	// Spring Security & JWT
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
@@ -52,10 +55,22 @@ dependencies {
 	// Tools & Test
 	implementation 'org.springframework.boot:spring-boot-starter-jdbc'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+//	testImplementation 'org.mockito:mockito-inline:5.2.0'
+
+	testImplementation 'org.springframework.boot:spring-boot-test-autoconfigure'
+
+	testImplementation 'org.junit.jupiter:junit-jupiter-api'
+	testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+
+	// 1. 테스트 스타터 (WebMvcTest 포함)
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	testImplementation 'org.mockito:mockito-inline:5.2.0'
-	testImplementation 'org.springframework.security:spring-security-test'
+
+	testImplementation 'org.springframework.boot:spring-boot-webmvc-test'
+
+	// 2. JUnit 5 엔진 명시 (4.x 필수)
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+	testImplementation 'org.springframework.security:spring-security-test'
 }
 
 tasks.named('test') {
