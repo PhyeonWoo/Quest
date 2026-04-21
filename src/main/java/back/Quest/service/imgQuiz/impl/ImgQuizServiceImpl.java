@@ -6,6 +6,7 @@ import back.Quest.model.Enum.ValidationStatus;
 import back.Quest.model.dto.imgQuiz.ImgQuizDto;
 import back.Quest.service.imgQuiz.ImgQuizService;
 import back.Quest.service.imgQuiz.assembler.ImgQuizAssembler;
+import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Bucket;
 import com.google.firebase.cloud.StorageClient;
 import lombok.RequiredArgsConstructor;
@@ -44,14 +45,22 @@ public class ImgQuizServiceImpl implements ImgQuizService {
             throw new CustomException.InvalidRequestException("빈칸 오류");
         }
 
-        String imgUrl = saveImg(image);
-        imgQuizMapper.insertImgQuiz(memberNo, imgUrl, request);
-        Long imgQuizNo = imgQuizMapper.selectLastId();
+        String filePath = "imgQuiz/" + UUID.randomUUID() + "_" + image.getOriginalFilename();
+        String imgUrl = uploadImg(filePath, image);
 
-        int imgDistractNo = imgQuizMapper.insertImgDistract(imgQuizNo, request.list());
-        if (imgQuizNo == 0 || imgDistractNo == 0) {
-            log.error("Insert Fail");
-            throw new CustomException.InvalidRequestException("생성 오류");
+        try {
+            imgQuizMapper.insertImgQuiz(memberNo, imgUrl, request);
+            Long imgQuizNo = imgQuizMapper.selectLastId();
+
+            int imgDistractNo = imgQuizMapper.insertImgDistract(imgQuizNo, request.list());
+            if (imgQuizNo == 0 || imgDistractNo == 0) {
+                log.error("Insert Fail");
+                throw new CustomException.InvalidRequestException("생성 오류");
+            }
+        } catch (Exception e) {
+            // DB 저장 실패 시 삭제
+            deleteImg(filePath);
+            throw e;
         }
 
         log.info("Insert ImgQuiz Success");
@@ -121,26 +130,32 @@ public class ImgQuizServiceImpl implements ImgQuizService {
     }
 
 
-    private String saveImg(MultipartFile image) {
+    private String uploadImg(String filePath, MultipartFile image) {
         try {
-            String fileName = UUID.randomUUID() + "_" + image.getOriginalFilename();
-
             Bucket bucket = StorageClient.getInstance().bucket();
-            bucket.create(
-                    "imgQuiz/" + fileName,
-                    image.getBytes(),
-                    image.getContentType()
-            );
+            bucket.create(filePath, image.getBytes(), image.getContentType());
 
-            String encodedFileName = URLEncoder.encode("imgQuiz/" + fileName, StandardCharsets.UTF_8);
+            String encodedPath = URLEncoder.encode(filePath, StandardCharsets.UTF_8);
             return "https://firebasestorage.googleapis.com/v0/b/"
                     + firebaseBucket
-                    + "/o/" + encodedFileName
+                    + "/o/" + encodedPath
                     + "?alt=media";
 
         } catch (IOException e) {
             log.error("Firebase 저장 실패 : {}", e.getMessage());
             throw new CustomException.InvalidRequestException("이미지 저장 실패");
+        }
+    }
+
+    private void deleteImg(String filePath) {
+        try {
+            Blob blob = StorageClient.getInstance().bucket().get(filePath);
+            if (blob != null) {
+                blob.delete();
+                log.info("Firebase 파일 롤백 완료: {}", filePath);
+            }
+        } catch (Exception e) {
+            log.error("Firebase 파일 롤백 실패 (수동 삭제 필요): {}", filePath);
         }
     }
 }
