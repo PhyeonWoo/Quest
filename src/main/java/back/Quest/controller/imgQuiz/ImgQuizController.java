@@ -40,11 +40,6 @@ public class ImgQuizController {
                     "- `image`: 이미지 파일\n" +
                     "- `request`: 퀴즈 정보 JSON"
     )
-    @ApiResponses({
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "이미지 퀴즈 생성 성공"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "입력값 유효성 검사 실패"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "인증 실패")
-    })
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ApiResponse<String> insertImgQuiz(
             @Parameter(description = "Bearer {accessToken}", required = true)
@@ -67,11 +62,6 @@ public class ImgQuizController {
             summary = "이미지 퀴즈 삭제",
             description = "본인이 생성한 이미지 퀴즈를 삭제합니다. 다른 사람의 퀴즈는 삭제할 수 없습니다."
     )
-    @ApiResponses({
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "이미지 퀴즈 삭제 성공"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "권한 없음 또는 삭제 실패"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "존재하지 않는 퀴즈")
-    })
     @DeleteMapping("/delete/{imgQuizNo}")
     public ApiResponse<String> deleteImgQuiz(
             @Parameter(description = "Bearer {accessToken}", required = true)
@@ -87,10 +77,6 @@ public class ImgQuizController {
             summary = "내 이미지 퀴즈 목록 조회",
             description = "로그인한 사용자가 생성한 모든 이미지 퀴즈 목록을 조회합니다."
     )
-    @ApiResponses({
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "이미지 퀴즈 목록 조회 성공"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "인증 실패")
-    })
     @GetMapping("/me")
     public ApiResponse<List<ImgQuizDto.ImgQuizResponse>> myQuiz(
             @Parameter(description = "Bearer {accessToken}", required = true)
@@ -104,10 +90,6 @@ public class ImgQuizController {
             summary = "이미지 퀴즈 단건 조회",
             description = "이미지 퀴즈 번호로 특정 이미지 퀴즈를 조회합니다."
     )
-    @ApiResponses({
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "이미지 퀴즈 조회 성공"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "존재하지 않는 퀴즈")
-    })
     @GetMapping("/{imgQuizNo}")
     public ApiResponse<ImgQuizDto.ImgQuizResponse> findById(
             @Parameter(description = "조회할 이미지 퀴즈 번호", required = true)
@@ -121,11 +103,6 @@ public class ImgQuizController {
             summary = "이미지 퀴즈 정답 제출",
             description = "보기 번호(1번부터 시작)를 제출하면 즉시 정답 여부를 반환합니다."
     )
-    @ApiResponses({
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "채점 완료"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "유효하지 않은 정답 번호"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "존재하지 않는 퀴즈")
-    })
     @PostMapping("/{imgQuizNo}/solve")
     public ApiResponse<ImgQuizDto.ImgSolveResponse> solveImgQuiz(
             @Parameter(description = "Bearer {accessToken}", required = true)
