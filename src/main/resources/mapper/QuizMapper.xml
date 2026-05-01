@@ -84,4 +84,34 @@
           AND REQD.deleted_dt IS NULL
     </select>
 
+
+    <!-- ── 성능 테스트 전용: N+1 시뮬레이션 ───────────────────── -->
+
+    <!-- Step 1: 퀴즈 목록만 조회 (보기 없음) -->
+    <select id="findQuizListOnly" resultMap="QuizFlatResultMap">
+        SELECT quiz_no   AS quizNo,
+               member_no AS memberNo,
+               question,
+               NULL      AS distractNo,
+               NULL      AS validation,
+               NULL      AS text
+          FROM RECALL_QUIZ
+         WHERE member_no  = #{memberNo}
+           AND deleted_dt IS NULL
+         ORDER BY quiz_no DESC
+    </select>
+
+    <!-- Step 2: 퀴즈 1개의 보기만 조회 (N번 반복) -->
+    <select id="findDistractsByQuizNo" resultMap="QuizFlatResultMap">
+        SELECT quiz_no    AS quizNo,
+               NULL       AS memberNo,
+               NULL       AS question,
+               distract_no AS distractNo,
+               validation,
+               text
+          FROM RECALL_QUIZ_DISTRACT
+         WHERE quiz_no    = #{quizNo}
+           AND deleted_dt IS NULL
+    </select>
+
 </mapper>

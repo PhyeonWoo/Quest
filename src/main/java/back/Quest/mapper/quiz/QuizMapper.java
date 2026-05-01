@@ -32,6 +32,12 @@ public interface QuizMapper {
     // quizNo로 퀴즈 단건 조회 (flat 데이터)
     List<QuizDto.QuizFlatResponse> findById(Long quizNo);
 
+    // ── 성능 테스트 전용 (N+1 시뮬레이션) ──────────────────────
+    // Step 1: 퀴즈 목록만 조회
+    List<QuizDto.QuizFlatResponse> findQuizListOnly(Long memberNo);
+    // Step 2: 퀴즈 1개의 보기만 조회 (N번 반복)
+    List<QuizDto.QuizFlatResponse> findDistractsByQuizNo(Long quizNo);
+
 //    /**
 //     * 문제 ID로 모든 선택지 조회
 //     */
