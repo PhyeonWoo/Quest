@@ -37,7 +37,6 @@ public class ImgQuizServiceImpl implements ImgQuizService {
 
 
     @Override
-    @CacheEvict(value = "imgQuizList", key = "#memberNo")
     public void insertImgQuiz(Long memberNo, MultipartFile image, ImgQuizDto.ImgQuizRequest request) {
         log.info("Insert ImgQuiz Request");
 
@@ -67,7 +66,7 @@ public class ImgQuizServiceImpl implements ImgQuizService {
     }
 
     @Override
-    @CacheEvict(value = "imgQuizList", key = "#memberNo")
+    @CacheEvict(value = "imgQuizList", key = "#imgQuizNo")
     public void deleteImgQuiz(Long memberNo, Long imgQuizNo) {
         List<ImgQuizDto.ImgQuizFlatResponse> list = imgQuizMapper.findById(imgQuizNo);
         if (list == null || list.isEmpty()) {
