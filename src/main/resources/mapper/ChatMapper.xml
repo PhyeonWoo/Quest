@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="back.Quest.mapper.chat.ChatMapper">
+
+    <insert id="createRoom">
+        INSERT INTO CHAT_ROOM(member_no, name, password, createdDt)
+        VALUES (#{creatorId}, #{request.name}, #{request.password}, NOW())
+    </insert>
+
+    <select id="lastInsertId" resultType="Long">
+        SELECT LAST_INSERT_ID()
+    </select>
+
+    <update id="deleteRoom">
+        UPDATE CHAT_ROOM
+        SET deletedDt = NOW()
+        WHERE member_no = #{creatorId}
+        AND roomId = #{roomId}
+        AND deletedDt IS NULL
+    </update>
+
+
+    <insert id="insertMessage">
+        INSERT INTO CHAT_MESSAGE (roomId, member_no, nickname, content, type, createdDt)
+        VALUES (#{roomId}, #{senderId}, #{senderNickname}, #{content}, #{type}, NOW())
+    </insert>
+
+
+    <select id="selectMessage" resultType="back.Quest.model.dto.chat.ChatDto$MessageResponse">
+        SELECT
+        messageNo       AS messageId,
+        roomId          AS roomId,
+        member_no       AS senderId,
+        nickname        AS senderNickname,
+        content         AS content,
+        type            AS type,
+        createdDt       AS createdDt
+        FROM CHAT_MESSAGE
+        WHERE messageNo = #{messageId}
+    </select>
+
+
+    <select id="myChatRoom" resultType="back.Quest.model.dto.chat.ChatDto$ChatRoomResponse">
+        SELECT
+        CR.roomId AS roomId,
+        CR.member_no AS memberNo,
+        CR.name AS name
+        FROM CHAT_ROOM CR
+        JOIN ROOM_MEMBER RM ON RM.roomId = CR.roomId
+        WHERE RM.member_no = #{memberNo}
+        AND RM.deletedDt IS NULL
+        AND CR.deletedDt IS NULL
+    </select>
+
+
+    <select id="singleRoom" resultType="back.Quest.model.dto.chat.ChatDto$ChatRoomResponse">
+        SELECT
+        roomId AS roomId,
+        member_no AS memberNo,
+        name AS name
+        FROM CHAT_ROOM
+        WHERE roomId = #{roomId}
+        AND deletedDt IS NULL
+    </select>
+
+
+    <select id="findAll" resultType="back.Quest.model.dto.chat.ChatDto$ChatRoomResponse">
+        SELECT
+        roomId AS roomId,
+        member_no AS memberNo,
+        name AS name
+        FROM CHAT_ROOM
+        WHERE deletedDt IS NULL
+        ORDER BY createdDt DESC
+    </select>
+
+    <update id="updateRead">
+        UPDATE ROOM_MEMBER
+        SET last_read_message_id = #{messageId}
+        WHERE roomId = #{roomId}
+        AND member_no = #{memberNo}
+        AND deletedDt IS NULL
+    </update>
+
+    <select id="unReadCount" resultType="int">
+        SELECT COUNT(*)
+        FROM CHAT_MESSAGE CM
+        LEFT JOIN ROOM_MEMBER RM
+        ON RM.roomId = #{roomId}
+        AND RM.member_no = #{memberNo}
+        WHERE CM.roomId = #{roomId}
+        AND CM.messageNo > COALESCE(RM.last_read_message_id, 0)
+    </select>
+
+
+    <select id="existRoomMember" resultType="boolean">
+        SELECT COUNT(*) > 0
+        FROM ROOM_MEMBER
+        WHERE roomId = #{roomId}
+        AND member_no = #{memberNo}
+        AND deletedDt IS NULL
+    </select>
+
+
+    <insert id="joinRoom">
+        INSERT INTO ROOM_MEMBER (roomId, member_no, createdDt)
+        VALUES ( #{roomId} , #{memberNo} , NOW())
+    </insert>
+
+    <select id="findRoomPassword" resultType="String">
+        SELECT password
+        FROM CHAT_ROOM
+        WHERE roomId = #{roomId}
+        AND deletedDt IS NULL
+    </select>
+
+</mapper>
