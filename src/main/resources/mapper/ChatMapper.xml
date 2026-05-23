@@ -50,7 +50,6 @@
         FROM CHAT_ROOM CR
         JOIN ROOM_MEMBER RM ON RM.roomId = CR.roomId
         WHERE RM.member_no = #{memberNo}
-        AND RM.deletedDt IS NULL
         AND CR.deletedDt IS NULL
     </select>
 
@@ -81,7 +80,6 @@
         SET last_read_message_id = #{messageId}
         WHERE roomId = #{roomId}
         AND member_no = #{memberNo}
-        AND deletedDt IS NULL
     </update>
 
     <select id="unReadCount" resultType="int">
@@ -100,7 +98,6 @@
         FROM ROOM_MEMBER
         WHERE roomId = #{roomId}
         AND member_no = #{memberNo}
-        AND deletedDt IS NULL
     </select>
 
 
@@ -115,5 +112,12 @@
         WHERE roomId = #{roomId}
         AND deletedDt IS NULL
     </select>
+
+
+    <delete id="leaveChat">
+        DELETE FROM ROOM_MEMBER
+        WHERE roomId = #{roomId}
+        AND member_no = #{memberNo}
+    </delete>
 
 </mapper>
