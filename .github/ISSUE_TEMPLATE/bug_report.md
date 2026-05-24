@@ -2,32 +2,32 @@
 **Title: ROOM_MEMBER 테이블 존재하지 않는 deletedDt 컬럼 참조로 채팅 전 기능 500 에러 발생**                                     
                                                                          
   ---                                    
-  **Describe the bug**
+  **버그 설명**
 
   채팅방 참여, 나가기, 내 채팅방 목록 조회 등 채팅 관련 전 기능에서 500 Internal Server Error 발생.  
   ROOM_MEMBER 테이블에 존재하지 않는 deletedDt 컬럼을 SQL에서 참조하는 것이 원인.
 
   ---
-  **To Reproduce**
+  **재현 절차**
 
   1. 로그인 후 accessToken 획득
   2. POST /api/v1/chat/join/{roomId} 호출
   3. 500 에러 응답 확인
 
   ---
-  **Expected behavior**
+  **기대 동작**
 
   200 OK 응답과 함께 채팅방 참여 성공
 
   ---
-  **Screenshots**
+  **스크린샷 / 코드**
 
   SQLSyntaxErrorException: Unknown column 'deletedDt' in 'where clause'
   SQL: SELECT COUNT(*) > 0 FROM ROOM_MEMBER
        WHERE roomId = ? AND member_no = ? AND deletedDt IS NULL
 
   ---
-  **Additional context**
+   **추가 정보**
 
   - 영향 범위: existRoomMember, myChatRoom, updateRead 쿼리 전부 해당
   - 원인 파일: src/main/resources/mapper/ChatMapper.xml
@@ -39,13 +39,13 @@
 **Title: leaveChat 쿼리 컬럼명 오류로 채팅방 나가기 시 DB 미삭제**                                                                 
                                                                        
   ---                                                                    
-  **Describe the bug**                                                       
+  **버그 설명**                                                     
                                                                          
   채팅방 나가기 실행 시 200 응답은 반환되나 ROOM_MEMBER 테이블에서 실제 row가 삭제되지 않음. 
   SQL 쿼리에서 컬럼명 member_no 대신 memberNo 사용 원인.                                                                 
 
   ---
-  **To Reproduce**
+  **재현 절차**
 
   1. 로그인 후 채팅방 참여
   2. WebSocket /pub/chat/leave 전송 또는 나가기 요청
@@ -53,14 +53,14 @@
   4. 해당 row가 삭제되지 않은 것 확인
 
   ---
-  **Expected behavior**
+  **기대 동작**
 
   나가기 요청 후 ROOM_MEMBER 테이블에서 해당 사용자의 row 삭제
 
   ---
-  **Screenshots**
+  **스크린샷 / 코드**
 
-  -- 실제 실행된 쿼리 (잘못됨)
+  -- 실제 실행 쿼리
   DELETE FROM ROOM_MEMBER
   WHERE roomId = ?
   AND memberNo = ?   ->  존재하지 않는 컬럼명
@@ -71,7 +71,7 @@
   AND member_no = ?
 
   ---
-  **Additional context**
+  **추가 정보**
 
   - 원인 파일: src/main/resources/mapper/ChatMapper.xml leaveChat 쿼리
   - 전체 테이블에서 컬럼명은 member_no 로 통일되어 있으나 해당 쿼리만 memberNo 사용
@@ -79,6 +79,7 @@
   - 수정: memberNo → member_no
 
   ---
+  
 # BUG-003
 **Title: leaveChat 서비스 파라미터 순서 역전으로 항상 NotFoundException 발생**
   ---                                                                    
@@ -89,19 +90,19 @@
   파라미터 순서가 역전되어 roomId값이 memberNo 파라미터로, memberNo값이 roomId 파라미터로 바인딩되는 것이 원인.
   
   ---
-  **To Reproduce**
+  **재현 절차**
 
   1. 로그인 후 채팅방 참여
   2. WebSocket `/pub/chat/leave` 전송
   3. "존재하지 않습니다." 예외 응답 확인
 
   ---
-  **Expected behavior**
+  **기대 동작**
 
   정상 퇴장 처리 및 ROOM_MEMBER row 삭제
 
   ---
-  **Screenshots**
+  **스크린샷 / 코드**
 
  // 매퍼 시그니처
   boolean existRoomMember(@Param("memberNo") Long memberNo,
@@ -115,7 +116,7 @@
 
 
   ---
-  **Additional context**
+  **추가 정보**
   
   - 원인 파일:
   src/main/java/back/Quest/service/chat/impl/ChatServiceImpl.java:118
@@ -124,4 +125,49 @@
   - 수정: 파라미터 순서 (roomId, memberNo) → (memberNo, roomId)
 
   ---
+  # BUG-004
+**Title: SecurityConfig 규칙 순서 오류로 logout 엔드포인트 인증 없이 접근 가능**
+  ---                                                                    
+  **Describe the bug**
+  
+ Spring Security filterChain에서        
+  `/api/v1/auth/logout` authenticated() 규칙이                           
+  `/api/v1/auth/**` permitAll() 규칙보다 뒤에 선언되어                   
+  logout 엔드포인트에 JWT 없이 접근 가능.
+  
+  ---
+  **재현 절차**
+
+  1. 로그인 없이 DELETE /api/v1/auth/logout 요청
+  2. Authorization 헤더 없음
+  3. 기대: 401 Unauthorized
+  4. 실제: 200
+
+
+  ---
+  **기대 동작**
+
+  Authorization 헤더 없는 logout 요청 시 401 Unauthorized 반환.
+  유효한 JWT 토큰 보유 사용자만 logout 가능해야 함
+
+  ---
+  **스크린샷 / 코드**
+
+ // 잘못된 순서 (SecurityConfig.java)
+  .requestMatchers("/api/v1/auth/**").permitAll()        
+  .requestMatchers("/api/v1/auth/logout").authenticated()  // ← 도달 안됨
+
+  // 올바른 순서
+  .requestMatchers("/api/v1/auth/logout").authenticated()  // ← logout 먼저 선언
+  .requestMatchers("/api/v1/auth/**").permitAll()
+
+  ---
+  **추가 정보**
+  
+  - 원인 파일: src/main/java/back/Quest/config/SecurityConfig.java
+  - Spring Security 규칙은 first-match → 구체적 경로를 상위에 선언해야 함
+  - 영향: 인증되지 않은 사용자가 logout API 호출 가능, Redis 블랙리스트 우회 가능
+  - 수정: authenticated() 규칙을 permitAll() 규칙보다 앞으로 이동
+  ---
+
   
