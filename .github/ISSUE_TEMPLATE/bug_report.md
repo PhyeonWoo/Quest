@@ -35,8 +35,6 @@
   - 수정: AND deletedDt IS NULL 조건 3곳 제거
 
   ---    
-
-
 # BUG-002
 **Title: leaveChat 쿼리 컬럼명 오류로 채팅방 나가기 시 DB 미삭제**                                                                 
                                                                        
@@ -81,3 +79,49 @@
   - 수정: memberNo → member_no
 
   ---
+# BUG-003
+**Title: leaveChat 서비스 파라미터 순서 역전으로 항상 NotFoundException 발생**
+  ---                                                                    
+  **Describe the bug**
+  
+  채팅방 나가기 시 "존재하지 않습니다." 예외가 항상 발생
+  ChatServiceImpl.leaveChat() 에서 existRoomMember() 호출 시
+  파라미터 순서가 역전되어 roomId값이 memberNo 파라미터로, memberNo값이 roomId 파라미터로 바인딩되는 것이 원인.
+  
+  ---
+  **To Reproduce**
+
+  1. 로그인 후 채팅방 참여
+  2. WebSocket `/pub/chat/leave` 전송
+  3. "존재하지 않습니다." 예외 응답 확인
+
+  ---
+  **Expected behavior**
+
+  정상 퇴장 처리 및 ROOM_MEMBER row 삭제
+
+  ---
+  **Screenshots**
+
+ // 매퍼 시그니처
+  boolean existRoomMember(@Param("memberNo") Long memberNo,
+  @Param("roomId") Long roomId);
+
+  // 잘못된 호출 (ChatServiceImpl.java:118)
+  chatMapper.existRoomMember(roomId, memberNo); // 순서 역전
+
+  // 올바른 호출
+  chatMapper.existRoomMember(memberNo, roomId);
+
+
+  ---
+  **Additional context**
+  
+  - 원인 파일:
+  src/main/java/back/Quest/service/chat/impl/ChatServiceImpl.java:118
+  - 매퍼 파라미터 순서: (memberNo, roomId) 인데 (roomId, memberNo) 로 호출
+  - 항상 false 반환 → 항상 예외 발생하는 구조
+  - 수정: 파라미터 순서 (roomId, memberNo) → (memberNo, roomId)
+
+  ---
+  
