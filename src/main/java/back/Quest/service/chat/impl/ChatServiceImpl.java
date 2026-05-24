@@ -112,4 +112,14 @@ public class ChatServiceImpl implements ChatService {
 
     }
 
+    // 채팅방 나가기
+    @Override
+    public void leaveChat(Long roomId, Long memberNo) {
+        boolean exists = chatMapper.existRoomMember(roomId, memberNo);
+        if(!exists) {
+            throw new CustomException.NotFoundException("존재하지 않습니다.");
+        }
+        chatMapper.leaveChat(roomId, memberNo);
+    }
+
 }
