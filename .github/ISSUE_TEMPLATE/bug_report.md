@@ -83,7 +83,7 @@
 # BUG-003
 **Title: leaveChat 서비스 파라미터 순서 역전으로 항상 NotFoundException 발생**
   ---                                                                    
-  **Describe the bug**
+  **버그 설명**       
   
   채팅방 나가기 시 "존재하지 않습니다." 예외가 항상 발생
   ChatServiceImpl.leaveChat() 에서 existRoomMember() 호출 시
@@ -128,7 +128,7 @@
   # BUG-004
 **Title: SecurityConfig 규칙 순서 오류로 logout 엔드포인트 인증 없이 접근 가능**
   ---                                                                    
-  **Describe the bug**
+  **버그 설명**       
   
  Spring Security filterChain에서        
   `/api/v1/auth/logout` authenticated() 규칙이                           
@@ -168,6 +168,59 @@
   - Spring Security 규칙은 first-match → 구체적 경로를 상위에 선언해야 함
   - 영향: 인증되지 않은 사용자가 logout API 호출 가능, Redis 블랙리스트 우회 가능
   - 수정: authenticated() 규칙을 permitAll() 규칙보다 앞으로 이동
+  ---
+  # BUG-005
+**Title: 마지막 멤버 퇴장 시 채팅방 자동 삭제 안됨**
+  ---                                                                    
+  **버그 설명**       
+  
+  채팅방에서 모든 멤버가 퇴장해도 CHAT_ROOM이 소프트 삭제(deletedDt)되지 않음.
+  빈 채팅방이 전체 목록에 계속 노출됨.
+  
+  ---
+  **재현 절차**
+
+ 1. 채팅방 생성 (멤버 1명)
+  2. WebSocket /chat/leave 메시지 전송
+  3. GET /api/v1/chat/all 호출
+  4. 기대: 해당 채팅방 목록에서 제거
+  5. 실제: deletedDt NULL인 채로 목록에 계속 노출
+
+  ---
+  **기대 동작**
+
+  마지막 멤버 퇴장 시 CHAT_ROOM.deletedDt = NOW() 로 업데이트.
+  전체 채팅방 목록 조회 시 해당 방 노출 안 됨.
+
+  ---
+  **스크린샷 / 코드**
+
+ // 현재 코드 (ChatServiceImpl.java) - 잔여 멤버 체크 없음
+  public void leaveChat(Long roomId, Long memberNo) {
+      boolean exists = chatMapper.existRoomMember(memberNo, roomId);
+      if (!exists) {
+          throw new CustomException.NotFoundException("존재하지않습니다.");
+      }
+      chatMapper.leaveChat(roomId, memberNo);
+      // ← 여기서 잔여 멤버 수 확인 및 채팅방 삭제 로직 없음
+  }
+
+  // 수정 방향
+  chatMapper.leaveChat(roomId, memberNo);
+  int remaining = chatMapper.countRoomMembers(roomId);
+  if (remaining == 0) {
+      chatMapper.deleteRoomById(roomId); // deletedDt = NOW()
+  }
+
+
+  ---
+  **추가 정보**
+  
+  - 원인 파일:src/main/java/back/Quest/service/chat/impl/ChatServiceImpl.java
+  - 관련 파일: src/main/resources/mapper/ChatMapper.xml
+  - 영향: 빈 채팅방 DB 누적, 사용자에게 입장 불가한 빈 방 목록 노출
+  - 수정: leaveChat() 이후 ROOM_MEMBER 잔여 수 조회 → 0이면 채팅방 소프트
+   삭제
   ---
 
   
