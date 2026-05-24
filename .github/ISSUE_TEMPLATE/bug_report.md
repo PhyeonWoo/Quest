@@ -1,6 +1,6 @@
 ---
 name: Bug report
-about: 버그 및 취약점 리포트
+about: 버그 및 취약점 리포트 (BUG-001)
 title: ''
 labels: ''
 assignees: ''
