@@ -1,6 +1,7 @@
 package back.Quest.config.kafka;
 
 
+import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.annotation.Value;
@@ -9,6 +10,7 @@ import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
+import org.springframework.kafka.config.TopicBuilder;
 import org.springframework.kafka.core.*;
 
 import java.util.HashMap;
@@ -52,7 +54,15 @@ public class KafkaConfig {
     public ConcurrentKafkaListenerContainerFactory<String, String> kafkaListenerContainerFactory() {
         ConcurrentKafkaListenerContainerFactory<String, String> config = new ConcurrentKafkaListenerContainerFactory<>();
         config.setConsumerFactory(consumerFactory());
-        config.setConcurrency(3);
+        config.setConcurrency(3); // 스레드 갯수
         return config;
+    }
+
+    @Bean
+    public NewTopic chatTopic() {
+        return TopicBuilder.name("chat")
+                .partitions(3) // 파티션 갯수
+                .replicas(1)
+                .build();
     }
 }
