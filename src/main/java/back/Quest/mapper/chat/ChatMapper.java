@@ -61,6 +61,11 @@ public interface ChatMapper {
             @Param("memberNo") Long memberNo
     );
 
+    void leaveChat(
+            @Param("roomId") Long roomId,
+            @Param("memberNo") Long memberNo
+    );
+
     String findRoomPassword(Long roomId);
 
 }
