@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -17,6 +18,7 @@ public class ChatConsumer {
     private final ObjectMapper objectMapper;
     private final SimpMessagingTemplate simpMessagingTemplate;
 
+    @Transactional
     @KafkaListener(topics = "chat", groupId = "chat")
     public void consumer(String payload) {
         try{
