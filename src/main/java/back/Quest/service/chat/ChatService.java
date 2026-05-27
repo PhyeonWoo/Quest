@@ -21,4 +21,6 @@ public interface ChatService {
     void joinRoom(Long roomId, Long memberNo, String password);
 
     void validateRoom(Long roomId, Long senderId);
+
+    void leaveChat(Long roomId, Long memberNo);
 }
