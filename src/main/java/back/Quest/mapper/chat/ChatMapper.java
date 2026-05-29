@@ -5,6 +5,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface ChatMapper {
@@ -26,6 +27,9 @@ public interface ChatMapper {
     void insertMessage(
             ChatDto.MessageRequest request
     );
+
+    // 메시지 전송 + 생성된 ID 반환 (useGeneratedKeys)
+    void insertMessageGetId(Map<String, Object> params);
 
     ChatDto.MessageResponse selectMessage(
             Long messageId

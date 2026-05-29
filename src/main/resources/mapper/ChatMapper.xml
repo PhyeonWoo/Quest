@@ -27,6 +27,11 @@
         VALUES (#{roomId}, #{senderId}, #{senderNickname}, #{content}, #{type}, NOW())
     </insert>
 
+    <insert id="insertMessageGetId" useGeneratedKeys="true" keyProperty="messageId" keyColumn="messageNo" parameterType="map">
+        INSERT INTO CHAT_MESSAGE (roomId, member_no, nickname, content, type, createdDt)
+        VALUES (#{roomId}, #{senderId}, #{senderNickname}, #{content}, #{type}, NOW())
+    </insert>
+
 
     <select id="selectMessage" resultType="back.Quest.model.dto.chat.ChatDto$MessageResponse">
         SELECT
