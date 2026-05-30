@@ -67,7 +67,7 @@ public class SecurityConfig {
                         ).permitAll()
                         .requestMatchers("/api/v1/auth/login", "/api/v1/auth/reissue").permitAll()
                         .requestMatchers("/api/v1/missing/**").permitAll()
-                        .requestMatchers("/ws-chat/**", "/test.html").permitAll()
+                        .requestMatchers("/ws-chat/**", "/ws-chat-test/**", "/test.html", "/app.html").permitAll()
                         .requestMatchers(
                                 "/api/v1/diary/**",
                                 "/api/v1/quiz/**",
@@ -75,8 +75,8 @@ public class SecurityConfig {
                                 "/api/v1/attempt/**",
                                 "/api/v1/chat/**"
                         ).authenticated()
-                        .requestMatchers("/api/v1/auth/**").permitAll()
                         .requestMatchers("/api/v1/auth/logout").authenticated()
+                        .requestMatchers("/api/v1/auth/**").permitAll()
                         .anyRequest().authenticated()
                 )
 
