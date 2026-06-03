@@ -25,9 +25,13 @@ public class KafkaConfig {
     public ProducerFactory<String, String> producerFactory() {
         Map<String, Object> config = new HashMap<>();
         config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+//        config.put(ProducerConfig.BATCH_SIZE_CONFIG, 32768);
+//        config.put(ProducerConfig.COMPRESSION_TYPE_CONFIG,"snappy");
         config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         config.put(ProducerConfig.RETRIES_CONFIG, 3);
+
+        // all -> 1
         config.put(ProducerConfig.ACKS_CONFIG, "all");
         return new DefaultKafkaProducerFactory<>(config);
     }
@@ -54,14 +58,14 @@ public class KafkaConfig {
     public ConcurrentKafkaListenerContainerFactory<String, String> kafkaListenerContainerFactory() {
         ConcurrentKafkaListenerContainerFactory<String, String> config = new ConcurrentKafkaListenerContainerFactory<>();
         config.setConsumerFactory(consumerFactory());
-        config.setConcurrency(3); // 스레드 갯수
+        config.setConcurrency(1); // 스레드 갯수
         return config;
     }
 
     @Bean
     public NewTopic chatTopic() {
         return TopicBuilder.name("chat")
-                .partitions(3) // 파티션 갯수
+                .partitions(1) // 파티션 갯수
                 .replicas(1)
                 .build();
     }
